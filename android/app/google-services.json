@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "720485656307",
+    "project_id": "learnrealtimedatabase-e3301",
+    "storage_bucket": "learnrealtimedatabase-e3301.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:720485656307:android:2da2899eb5950c12bf7986",
+        "android_client_info": {
+          "package_name": "com.example.realtime_database_crud"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiovMO-ZVp9S57pmikeQixQ0UuKXpq8_U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
