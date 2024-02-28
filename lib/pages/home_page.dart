@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:realtime_database_crud/pages/product_form_page.dart';
 
@@ -19,6 +22,40 @@ class _HomePageState extends State<HomePage> {
 
   List<PostModel> list = [];
 
+  /// Remote config --->
+  bool isBannerShoww = false;
+  final remoteConfig = FirebaseRemoteConfig.instance;
+
+  Map<String, Color> colors = {
+    "blue":Colors.blue,
+    "yellow":Colors.yellow,
+    "red":Colors.red,
+    "green":Colors.green,
+    "grey":Colors.grey,
+    "pink":Colors.pink,
+    "white":Colors.white,
+    "purple": const Color.fromRGBO(99, 7, 181, 1)
+  };
+
+  String backgroundColor = "white";
+
+  Future<void> fetchData() async {
+    await remoteConfig.fetchAndActivate().then((value) {
+      backgroundColor = remoteConfig.getString("background_color");
+    });
+  }
+
+  Future<void> initialConfig() async{
+    remoteConfig.setDefaults({"background_color" : backgroundColor,});
+    remoteConfig.setDefaults({"isBannerShoww": isBannerShoww});
+    await fetchData();
+    remoteConfig.onConfigUpdated.listen((event) async{
+      await fetchData();
+      setState(() {});
+    });
+  }
+
+
   getPosts() async {
     list = await RTDBService.readPosts(RTDBService.path);
     setState(() {});
@@ -37,15 +74,27 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     getPosts();
+    initialConfig();
+    isBannerShoww = remoteConfig.getBool("isBannerShoww");
+    log(isBannerShoww.toString());
+    remoteConfig.onConfigUpdated.listen((event) async{
+      await remoteConfig.activate();
+      setState(() {
+        isBannerShoww = remoteConfig.getBool("isBannerShoww");
+      });
+    });
     super.initState();
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: isBannerShoww ? AppBar(
         centerTitle: true,
-        backgroundColor: const Color.fromRGBO(99, 7, 181, 1),
+        backgroundColor: colors[backgroundColor],
         title: const Text('Product info',
           style: TextStyle(
             color: Colors.white,
@@ -53,16 +102,17 @@ class _HomePageState extends State<HomePage> {
             fontWeight: FontWeight.bold,
           ),
         ),
+      ): AppBar(
+          centerTitle: false,
+          backgroundColor: Colors.red,
+          title: const Text('Product info',
+          style: TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+         ),
+        ),
       ),
-      // body: Container(
-      //   margin: const EdgeInsets.only(left: 20, right: 20, top: 30),
-      //   child: Column(
-      //     children: [
-      //       Expanded(child: allUserDetail()),
-      //     ],
-      //   ),
-      // ),
-      //list.isNotEmpty?
       body: Container(
         margin: const EdgeInsets.only(left: 20, right: 20, top: 30),
         child: Column(
@@ -71,7 +121,7 @@ class _HomePageState extends State<HomePage> {
               child: list.isNotEmpty? ListView.builder(
                   itemCount: list.length,
                   itemBuilder: (_, index) {
-                    return Container(
+                    return  Container(
                       margin: const EdgeInsets.only(bottom: 20),
                       child: Material(
                         elevation: 5,
@@ -80,7 +130,7 @@ class _HomePageState extends State<HomePage> {
                           padding: const EdgeInsets.all(20),
                           width: MediaQuery.of(context).size.width,
                           decoration: BoxDecoration(
-                              color: const Color.fromRGBO(99, 7, 181, 1),
+                              color: colors[backgroundColor],
                               borderRadius: BorderRadius.circular(10)
                           ),
                           child: Column(
@@ -316,7 +366,6 @@ class _HomePageState extends State<HomePage> {
                               )
                           ),
                         ),
-
                       )
                     ],
                   ),
