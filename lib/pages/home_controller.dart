@@ -14,7 +14,6 @@ class HomeController extends ChangeNotifier {
 
   List<PostModel> list = [];
 
-  // Remote config
   bool isBannerShoww = false;
   final remoteConfig = FirebaseRemoteConfig.instance;
 
